@@ -1,0 +1,915 @@
+<html><head><base href="https://websimcreationengine.com/interactivesolarsystem/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Solar System Explorer with Asteroids, Comets, and NEOs</title>
+<style>
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000;
+    font-family: Arial, sans-serif;
+  }
+  #solar-system {
+    width: 100%;
+    height: 100%;
+  }
+  #controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+    z-index: 1000;
+  }
+  #planet-info {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 300px;
+    display: none;
+  }
+  h2 {
+    margin-top: 0;
+  }
+  #interaction-buttons {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+  }
+  #interaction-buttons button {
+    margin: 5px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #interaction-buttons button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  #start-tour-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    gap: 10px;
+  }
+  #start-tour, #play-button, #menu-button {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid white;
+    border-radius: 30px;
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  #start-tour:hover, #play-button:hover, #menu-button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+  }
+  #planet-selection {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    z-index: 1001;
+  }
+  #planet-dropdown {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: black;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #planet-dropdown:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  #menu-button-container {
+    position: static;
+  }
+  #game-menu, #name-game-container, #recreate-game-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    z-index: 1002;
+    text-align: center;
+    width: auto;
+    max-width: 300px;
+  }
+  #game-menu button, #name-game-container button, #recreate-game-container button {
+    margin: 10px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #planet-name-input, #planet-select, #size-slider, #orbit-speed-slider, #color-picker {
+    margin: 10px 0;
+    width: 100%;
+  }
+  .confirmation-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    z-index: 1003;
+    text-align: center;
+    width: auto;
+    max-width: 300px;
+  }
+  .confirmation-dialog button {
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .confirmation-dialog button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+  #name-game-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    z-index: 1002;
+    text-align: center;
+    width: auto;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #name-game-container h2 {
+    margin-bottom: 10px;
+  }
+  #planet-name-input {
+    margin-bottom: 10px;
+    width: 100%;
+    padding: 5px;
+  }
+  #name-game-container button {
+    margin: 5px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #name-game-container button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+</style>
+</head>
+<body>
+<div id="solar-system"></div>
+<div id="controls">
+  <label for="speed-slider">Orbit Speed: </label>
+  <input type="range" id="speed-slider" min="0" max="2" step="0.1" value="1">
+  <span id="speed-value">1x</span>
+</div>
+<div id="planet-info"></div>
+<div id="interaction-buttons">
+  <button id="toggle-live">Live</button>
+</div>
+<div id="start-tour-container">
+  <button id="play-button">Play</button>
+  <button id="start-tour">Start Solar System Tour</button>
+  <button id="menu-button">Back</button>
+</div>
+<div id="planet-selection">
+  <h3>Select a Planet:</h3>
+  <select id="planet-dropdown">
+    <option value="">Select a Planet</option>
+  </select>
+</div>
+<div id="game-menu" style="display: none;">
+  <button id="name-planet-game">Name the Planet</button>
+  <button id="recreate-game">Recreate</button>
+  <button id="back-to-main">Back to Main Menu</button>
+</div>
+<div id="recreate-game-container" style="display: none;">
+  <h2>Customize Planets</h2>
+  <select id="planet-select"></select>
+  <input type="range" id="size-slider" min="0.1" max="2" step="0.1" value="1">
+  <input type="range" id="orbit-speed-slider" min="0.1" max="2" step="0.1" value="1">
+  <input type="color" id="color-picker">
+  <button id="recreate-back">Back</button>
+</div>
+<div id="name-game-container" style="display: none;">
+  <h2>Who am I?</h2>
+  <input type="text" id="planet-name-input" placeholder="Enter planet name">
+  <button id="submit-name">Submit</button>
+  <button id="name-game-back">Back to Main Menu</button>
+</div>
+<audio id="background-music" loop>
+  <source src="https://example.com/space-ambience.mp3" type="audio/mpeg">
+</audio>
+<audio id="button-click-sound">
+  <source src="https://example.com/button-click.mp3" type="audio/mpeg">
+</audio>
+<audio id="planet-transition-sound">
+  <source src="https://example.com/planet-transition.mp3" type="audio/mpeg">
+</audio>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+  let isManualControl = false;
+
+  function adjustColor(color, amount) {
+    return '#' + color.replace(/^#/, '').replace(/../g, color => ('0' + Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+  }
+
+  function addNoise(context, width, height) {
+    const imageData = context.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const noise = Math.random() * 30 - 15;
+      data[i] = Math.max(0, Math.min(255, data[i] + noise));
+      data[i+1] = Math.max(0, Math.min(255, data[i+1] + noise));
+      data[i+2] = Math.max(0, Math.min(255, data[i+2] + noise));
+    }
+    context.putImageData(imageData, 0, 0);
+  }
+
+  function drawRings(context, width, height) {
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const maxRadius = width / 2;
+    const minRadius = maxRadius * 0.6;
+    
+    for (let radius = minRadius; radius < maxRadius; radius += 1) {
+      context.beginPath();
+      context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      context.strokeStyle = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 0.5})`;
+      context.lineWidth = 0.5;
+      context.stroke();
+    }
+  }
+
+  function createRings(planetMesh, innerRadius, outerRadius, color) {
+    const ringGeometry = new THREE.RingGeometry(innerRadius, outerRadius, 64);
+    const ringMaterial = new THREE.MeshBasicMaterial({
+      color: color,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.6
+    });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    ring.rotation.x = Math.PI / 2;
+    planetMesh.add(ring);
+  }
+
+  function createPlanetLabel(text) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const context = canvas.getContext('2d');
+    context.font = 'Bold 40px Arial';
+    context.fillStyle = 'white';
+    context.textAlign = 'center';
+    context.fillText(text, 128, 128);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const sprite = new THREE.Sprite(spriteMaterial);
+    sprite.scale.set(10, 10, 1);
+    
+    return sprite;
+  }
+
+  function createPlanetTexture(color, hasRings, name, features) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const context = canvas.getContext('2d');
+
+    const gradient = context.createRadialGradient(256, 256, 0, 256, 256, 256);
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(1, adjustColor(color, -30));
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 512, 512);
+
+    addNoise(context, 512, 512);
+
+    if (features) {
+      features.forEach(feature => {
+        context.fillStyle = feature.color;
+        for (let i = 0; i < feature.count; i++) {
+          const x = Math.random() * 512;
+          const y = Math.random() * 512;
+          const size = Math.random() * feature.maxSize + feature.minSize;
+          context.beginPath();
+          context.arc(x, y, size, 0, Math.PI * 2);
+          context.fill();
+        }
+      });
+    }
+
+    const atmosphereGradient = context.createRadialGradient(256, 256, 230, 256, 256, 256);
+    atmosphereGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+    atmosphereGradient.addColorStop(1, 'rgba(255, 255, 255, 0.3)');
+    context.fillStyle = atmosphereGradient;
+    context.fillRect(0, 0, 512, 512);
+
+    if (hasRings) {
+      drawRings(context, 512, 512);
+    }
+
+    return new THREE.CanvasTexture(canvas);
+  }
+
+  const planets = [
+    { name: "Mercury", radius: 0.383, distance: 5.7, color: "#A89E8D", orbitSpeed: 0.01, description: "The smallest planet in our solar system and closest to the Sun.", eccentricity: 0.20563, features: [{ color: '#6B6359', count: 100, minSize: 1, maxSize: 3 }] },
+    { name: "Venus", radius: 0.949, distance: 10.8, color: "#FCC292", orbitSpeed: 0.007, description: "Often called Earth's twin because of their similar size and mass.", features: [{ color: '#E39E6D', count: 200, minSize: 2, maxSize: 5 }] },
+    { name: "Earth", radius: 1, distance: 14.9, color: "#4BA3C3", orbitSpeed: 0.005, description: "Our home planet, the only known planet to harbor life.", features: [{ color: '#2E7D32', count: 50, minSize: 3, maxSize: 8 }, { color: '#F9A825', count: 30, minSize: 2, maxSize: 6 }] },
+    { name: "Mars", radius: 0.532, distance: 22.7, color: "#E27B58", orbitSpeed: 0.004, description: "Known as the Red Planet due to its reddish appearance.", features: [{ color: '#8B4513', count: 80, minSize: 1, maxSize: 4 }] },
+    { name: "Jupiter", radius: 11.209, distance: 77.8, color: "#E0A165", orbitSpeed: 0.002, description: "The largest planet in our solar system, a gas giant.", features: [{ color: '#8B4513', count: 10, minSize: 10, maxSize: 30 }, { color: '#A0522D', count: 5, minSize: 20, maxSize: 50 }] },
+    { name: "Saturn", radius: 9.449, distance: 143.4, color: "#F6E0A0", orbitSpeed: 0.0015, description: "Famous for its prominent ring system.", features: [{ color: '#DAA520', count: 15, minSize: 8, maxSize: 25 }] },
+    { name: "Uranus", radius: 4.007, distance: 287.1, color: "#97D6E3", orbitSpeed: 0.001, description: "An ice giant with a tilted rotation axis.", features: [{ color: '#5F9EA0', count: 20, minSize: 5, maxSize: 15 }] },
+    { name: "Neptune", radius: 3.883, distance: 449.5, color: "#5B84FF", orbitSpeed: 0.0008, description: "The windiest planet in our solar system.", features: [{ color: '#4169E1', count: 25, minSize: 4, maxSize: 12 }] }
+  ];
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.getElementById('solar-system').appendChild(renderer.domElement);
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableZoom = true;
+  controls.minDistance = 10;
+  controls.maxDistance = 1000;
+
+  let speedMultiplier = 1;
+  let focusedPlanet = null;
+  let cameraOffset = new THREE.Vector3(0, 5, 10);
+  let isLive = false;
+  let isTourActive = false;
+  let currentTourStep = 0;
+
+  const sunGeometry = new THREE.SphereGeometry(5, 32, 32);
+  const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+  const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+  scene.add(sun);
+
+  const planetMeshes = planets.map(planet => {
+    const geometry = new THREE.SphereGeometry(planet.radius, 32, 32);
+    const texture = createPlanetTexture(planet.color, planet.name === "Saturn" || planet.name === "Jupiter", planet.name, planet.features);
+    const material = new THREE.MeshBasicMaterial({ map: texture });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.x = planet.distance;
+    scene.add(mesh);
+    
+    const sprite = createPlanetLabel(planet.name);
+    sprite.position.set(0, planet.radius + 2, 0);
+    mesh.add(sprite);
+
+    if (planet.name === "Jupiter") {
+      createRings(mesh, planet.radius * 1.5, planet.radius * 2, 0xA79F92);
+    } else if (planet.name === "Saturn") {
+      createRings(mesh, planet.radius * 1.2, planet.radius * 2.3, 0xA79F92);
+    }
+
+    const orbitGeometry = new THREE.RingGeometry(planet.distance - 0.1, planet.distance + 0.1, 64);
+    const orbitMaterial = new THREE.MeshBasicMaterial({ 
+      color: planet.color, 
+      side: THREE.DoubleSide, 
+      transparent: true, 
+      opacity: 0.5 
+    });
+    const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
+    orbit.rotation.x = Math.PI / 2;
+    scene.add(orbit);
+
+    return { mesh, sprite };
+  });
+
+  const tourSteps = [
+    { target: sun.position, duration: 5, name: "Sun" },
+    ...planets.map((planet, index) => ({ 
+      target: planetMeshes[index].mesh.position, 
+      duration: 3,
+      name: planet.name
+    }))
+  ];
+
+  function createNebula() {
+    const nebulaTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/nebula.jpg');
+    const nebulaMaterial = new THREE.MeshBasicMaterial({
+      map: nebulaTexture,
+      side: THREE.BackSide,
+      transparent: true,
+      opacity: 0.3
+    });
+    const nebulaSphere = new THREE.Mesh(new THREE.SphereGeometry(500, 32, 32), nebulaMaterial);
+    scene.add(nebulaSphere);
+  }
+
+  createNebula();
+
+  function createStarfield() {
+    const geometry = new THREE.BufferGeometry();
+    const vertices = [];
+    const sizes = [];
+
+    for (let i = 0; i < 10000; i++) {
+      vertices.push(THREE.MathUtils.randFloatSpread(2000));
+      vertices.push(THREE.MathUtils.randFloatSpread(2000));
+      vertices.push(THREE.MathUtils.randFloatSpread(2000));
+      sizes.push(THREE.MathUtils.randFloat(1, 3));
+    }
+
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+
+    const starMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        pointTexture: { value: new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/sprites/disc.png') }
+      },
+      vertexShader: `
+        attribute float size;
+        varying vec3 vColor;
+        void main() {
+          vColor = color;
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          gl_PointSize = size * (300.0 / -mvPosition.z);
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D pointTexture;
+        varying vec3 vColor;
+        void main() {
+          gl_FragColor = vec4(vColor, 1.0);
+          gl_FragColor = gl_FragColor * texture2D(pointTexture, gl_PointCoord);
+        }
+      `,
+      blending: THREE.AdditiveBlending,
+      depthTest: false,
+      transparent: true,
+      vertexColors: true
+    });
+
+    const starfield = new THREE.Points(geometry, starMaterial);
+    scene.add(starfield);
+  }
+
+  createStarfield();
+
+  const galaxyTexture = new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/galaxy_starfield.png');
+  const galaxyMaterial = new THREE.MeshBasicMaterial({ map: galaxyTexture, side: THREE.BackSide });
+  const galaxySphere = new THREE.Mesh(new THREE.SphereGeometry(500, 32, 32), galaxyMaterial);
+  scene.add(galaxySphere);
+
+  const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+  scene.add(ambientLight);
+
+  const pointLight = new THREE.PointLight(0xffffff, 1, 1000);
+  pointLight.position.set(0, 0, 0);
+  scene.add(pointLight);
+
+  camera.position.set(0, 200, 400);
+  controls.update();
+
+  const backgroundMusic = document.getElementById('background-music');
+  const buttonClickSound = document.getElementById('button-click-sound');
+  const planetTransitionSound = document.getElementById('planet-transition-sound');
+
+  let currentGame = null;
+  let selectedPlanetForGame = null;
+
+  function startNamePlanetGame() {
+    currentGame = 'name';
+    document.getElementById('game-menu').style.display = 'none';
+    document.getElementById('name-game-container').style.display = 'block';
+    
+    selectedPlanetForGame = Math.floor(Math.random() * planets.length);
+    const selectedPlanet = planets[selectedPlanetForGame];
+    
+    zoomToPlanet(selectedPlanet, selectedPlanetForGame);
+    
+    planetMeshes[selectedPlanetForGame].sprite.visible = false;
+    
+    document.getElementById('planet-name-input').value = '';
+    document.querySelector('#name-game-container h2').textContent = "Who am I?";
+  }
+
+  function showGameMenu() {
+    document.getElementById('game-menu').style.display = 'block';
+    document.getElementById('start-tour-container').style.display = 'none';
+  }
+
+  function hideGameMenu() {
+    document.getElementById('game-menu').style.display = 'none';
+    document.getElementById('start-tour-container').style.display = 'flex';
+    document.getElementById('name-game-container').style.display = 'none';
+    document.getElementById('recreate-game-container').style.display = 'none';
+  }
+
+  function showConfirmation(message, onConfirm, onCancel) {
+    const confirmationDiv = document.createElement('div');
+    confirmationDiv.className = 'confirmation-dialog';
+    confirmationDiv.innerHTML = `
+      <p>${message}</p>
+      <button id="confirm-yes">Yes</button>
+      <button id="confirm-no">No</button>
+    `;
+
+    document.body.appendChild(confirmationDiv);
+
+    document.getElementById('confirm-yes').addEventListener('click', () => {
+      document.body.removeChild(confirmationDiv);
+      onConfirm();
+    });
+
+    document.getElementById('confirm-no').addEventListener('click', () => {
+      document.body.removeChild(confirmationDiv);
+      if (onCancel) {
+        onCancel();
+      }
+    });
+  }
+
+  function submitPlanetName() {
+    const input = document.getElementById('planet-name-input');
+    const submittedName = input.value.trim().toLowerCase();
+    const correctName = planets[selectedPlanetForGame].name.toLowerCase();
+    
+    if (submittedName === correctName) {
+      showConfirmation('Correct! Do you want to move to the next planet?', () => {
+        planetMeshes[selectedPlanetForGame].sprite.visible = true;
+        
+        const glowMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.5 });
+        const glowMesh = new THREE.Mesh(planetMeshes[selectedPlanetForGame].mesh.geometry.clone(), glowMaterial);
+        planetMeshes[selectedPlanetForGame].mesh.add(glowMesh);
+        
+        setTimeout(() => {
+          planetMeshes[selectedPlanetForGame].mesh.remove(glowMesh);
+          startNamePlanetGame();
+        }, 2000);
+      }, () => {
+        planetMeshes[selectedPlanetForGame].sprite.visible = true;
+        showGameMenu();
+      });
+    } else {
+      showConfirmation('Incorrect. Do you want to try again?', () => {
+        input.value = '';
+      }, () => {
+        planetMeshes[selectedPlanetForGame].sprite.visible = true;
+        showGameMenu();
+      });
+    }
+  }
+
+  function startRecreateGame() {
+    currentGame = 'recreate';
+    document.getElementById('game-menu').style.display = 'none';
+    document.getElementById('recreate-game-container').style.display = 'block';
+    
+    const planetSelect = document.getElementById('planet-select');
+    planetSelect.innerHTML = '';
+    planets.forEach((planet, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = planet.name;
+      planetSelect.appendChild(option);
+    });
+
+    const initialColor = planets[0].color;
+    document.getElementById('color-picker').value = initialColor;
+  }
+
+  function updatePlanetCustomization() {
+    const planetIndex = parseInt(document.getElementById('planet-select').value);
+    const size = parseFloat(document.getElementById('size-slider').value);
+    const orbitSpeed = parseFloat(document.getElementById('orbit-speed-slider').value);
+    const color = document.getElementById('color-picker').value;
+    
+    const planetMesh = planetMeshes[planetIndex].mesh;
+    planetMesh.scale.set(size, size, size);
+    planets[planetIndex].orbitSpeed = orbitSpeed * 0.005;
+    planetMesh.material.color.setHex(parseInt(color.substr(1), 16));
+  }
+
+  function endGame() {
+    currentGame = null;
+    if (selectedPlanetForGame !== null) {
+      planetMeshes[selectedPlanetForGame].sprite.visible = true;
+    }
+    selectedPlanetForGame = null;
+    document.getElementById('name-game-container').style.display = 'none';
+    document.getElementById('recreate-game-container').style.display = 'none';
+    showGameMenu();
+  }
+
+  function smoothTransitionToPlanet(planetMesh, duration = 2) {
+    const startPosition = camera.position.clone();
+    const endPosition = planetMesh.position.clone().add(new THREE.Vector3(0, planetMesh.geometry.parameters.radius * 3, planetMesh.geometry.parameters.radius * 7));
+    
+    gsap.to(camera.position, {
+      duration: duration,
+      x: endPosition.x,
+      y: endPosition.y,
+      z: endPosition.z,
+      ease: "power2.inOut",
+      onUpdate: () => {
+        camera.lookAt(planetMesh.position);
+        controls.update();
+      },
+      onComplete: () => {
+        controls.target.copy(planetMesh.position);
+      }
+    });
+  }
+
+  function zoomToPlanet(planet, planetIndex) {
+    focusedPlanet = planetIndex;
+    const planetMesh = planetMeshes[planetIndex].mesh;
+    smoothTransitionToPlanet(planetMesh);
+    controls.enabled = true;
+    showPlanetInfo(planet);
+    
+    cameraOffset.set(0, planet.radius * 3, planet.radius * 7);
+    
+    isManualControl = false;
+    controls.target.copy(planetMesh.position);
+  }
+
+  function updateCameraPosition() {
+    if (focusedPlanet !== null && !isManualControl) {
+      const planetMesh = planetMeshes[focusedPlanet].mesh;
+      const targetPosition = planetMesh.position.clone().add(cameraOffset);
+      camera.position.lerp(targetPosition, 0.1);
+      camera.lookAt(planetMesh.position);
+      controls.target.copy(planetMesh.position);
+    }
+  }
+
+  function startTour() {
+    isTourActive = true;
+    currentTourStep = 0;
+    document.getElementById('start-tour').style.display = 'none';
+    document.getElementById('controls').style.display = 'none';
+    document.getElementById('interaction-buttons').style.display = 'none';
+    
+    moveToNextTourStep();
+  }
+
+  function moveToNextTourStep() {
+    if (currentTourStep >= tourSteps.length) {
+      endTour();
+      return;
+    }
+
+    const step = tourSteps[currentTourStep];
+    const duration = step.duration || 3;
+
+    gsap.to(camera.position, {
+      duration: duration,
+      x: step.target.x + cameraOffset.x,
+      y: step.target.y + cameraOffset.y,
+      z: step.target.z + cameraOffset.z,
+      ease: "power2.inOut",
+      onUpdate: () => {
+        camera.lookAt(step.target);
+        controls.update();
+      },
+      onComplete: () => {
+        controls.target.copy(step.target);
+        showPlanetInfo(planets.find(p => p.name === step.name) || { name: step.name, description: "A celestial body in our solar system" });
+        planetTransitionSound.play();
+        setTimeout(() => {
+          currentTourStep++;
+          moveToNextTourStep();
+        }, 2000);
+      }
+    });
+  }
+
+  function endTour() {
+    isTourActive = false;
+    resetView();
+    document.getElementById('start-tour').style.display = 'block';
+    document.getElementById('controls').style.display = 'block';
+    document.getElementById('interaction-buttons').style.display = 'flex';
+    hidePlanetInfo();
+  }
+
+  const animate = () => {
+    requestAnimationFrame(animate);
+
+    if (!isTourActive && (isLive || currentGame === 'recreate')) {
+      planetMeshes.forEach(({ mesh }, index) => {
+        const planet = planets[index];
+        if (planet.name === "Mercury") {
+          const a = planet.distance;
+          const e = planet.eccentricity;
+          const angle = Date.now() * planet.orbitSpeed * speedMultiplier;
+          const r = a * (1 - e * e) / (1 + e * Math.cos(angle));
+          mesh.position.x = r * Math.cos(angle);
+          mesh.position.z = r * Math.sin(angle);
+        } else {
+          mesh.position.x = Math.cos(Date.now() * planet.orbitSpeed * speedMultiplier) * planet.distance;
+          mesh.position.z = Math.sin(Date.now() * planet.orbitSpeed * speedMultiplier) * planet.distance;
+        }
+      });
+    }
+
+    if (focusedPlanet !== null && !isManualControl) {
+      const planetMesh = planetMeshes[focusedPlanet].mesh;
+      const targetPosition = planetMesh.position.clone().add(cameraOffset);
+      camera.position.lerp(targetPosition, 0.1);
+      camera.lookAt(planetMesh.position);
+      controls.target.copy(planetMesh.position);
+    }
+
+    controls.update();
+    renderer.render(scene, camera);
+  };
+
+  function createPlanetDropdown() {
+    const planetDropdown = document.getElementById('planet-dropdown');
+    planets.forEach((planet, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = planet.name;
+      planetDropdown.appendChild(option);
+    });
+
+    planetDropdown.addEventListener('change', (event) => {
+      const selectedIndex = parseInt(event.target.value);
+      if (!isNaN(selectedIndex)) {
+        zoomToPlanet(planets[selectedIndex], selectedIndex);
+      }
+    });
+  }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  window.addEventListener('click', (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects([...planetMeshes.map(p => p.mesh)]);
+
+    if (intersects.length > 0) {
+      const clickedObject = intersects[0].object;
+      if (planetMeshes.some(p => p.mesh === clickedObject)) {
+        const planetIndex = planetMeshes.findIndex(p => p.mesh === clickedObject);
+        const planet = planets[planetIndex];
+        zoomToPlanet(planet, planetIndex);
+      }
+    } else if (focusedPlanet === null) {
+      resetView();
+    }
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      resetView();
+    }
+  });
+
+  const planetInfo = document.getElementById('planet-info');
+
+  function showPlanetInfo(planet) {
+    planetInfo.innerHTML = `
+      <h2>${planet.name}</h2>
+      <p><strong>Radius:</strong> ${planet.radius} Earth radii</p>
+      <p><strong>Distance from Sun:</strong> ${planet.distance} AU</p>
+      <p><strong>Description:</strong> ${planet.description}</p>
+    `;
+    planetInfo.style.display = 'block';
+  }
+
+  function hidePlanetInfo() {
+    planetInfo.style.display = 'none';
+  }
+
+  function resetView() {
+    focusedPlanet = null;
+    isManualControl = false;
+    controls.enabled = true;
+    gsap.to(camera.position, {
+      duration: 1,
+      x: 0,
+      y: 200,
+      z: 400,
+      onUpdate: () => {
+        camera.lookAt(scene.position);
+        controls.update();
+      },
+      onComplete: () => {
+        controls.target.set(0, 0, 0);
+        hidePlanetInfo();
+      }
+    });
+  }
+
+  const speedSlider = document.getElementById('speed-slider');
+  const speedValue = document.getElementById('speed-value');
+
+  speedSlider.addEventListener('input', (e) => {
+    speedMultiplier = parseFloat(e.target.value);
+    speedValue.textContent = `${speedMultiplier}x`;
+  });
+
+  const toggleLiveButton = document.getElementById('toggle-live');
+  toggleLiveButton.addEventListener('click', () => {
+    isLive = !isLive;
+    toggleLiveButton.textContent = isLive ? 'Pause' : 'Live';
+  });
+
+  document.getElementById('start-tour').addEventListener('click', startTour);
+
+  document.getElementById('menu-button').addEventListener('click', () => {
+    resetView();
+    document.getElementById('planet-dropdown').value = '';
+    hideGameMenu();
+    endGame();
+  });
+
+  document.getElementById('play-button').addEventListener('click', showGameMenu);
+  document.getElementById('back-to-main').addEventListener('click', hideGameMenu);
+  document.getElementById('name-planet-game').addEventListener('click', startNamePlanetGame);
+  document.getElementById('recreate-game').addEventListener('click', startRecreateGame);
+  document.getElementById('submit-name').addEventListener('click', submitPlanetName);
+  document.getElementById('planet-select').addEventListener('change', updatePlanetCustomization);
+  document.getElementById('size-slider').addEventListener('input', updatePlanetCustomization);
+  document.getElementById('orbit-speed-slider').addEventListener('input', updatePlanetCustomization);
+  document.getElementById('color-picker').addEventListener('input', updatePlanetCustomization);
+  document.getElementById('recreate-back').addEventListener('click', () => {
+    document.getElementById('recreate-game-container').style.display = 'none';
+    showGameMenu();
+  });
+  document.getElementById('name-game-back').addEventListener('click', () => {
+    endGame();
+    hideGameMenu();
+  });
+
+  controls.addEventListener('start', () => {
+    isManualControl = true;
+  });
+
+  controls.addEventListener('end', () => {
+    isManualControl = false;
+  });
+
+  createPlanetDropdown();
+  animate();
+</script>
+</body>
+</html>
